@@ -22,7 +22,7 @@ function init() {
 
   // シーン作成
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87CEEB); // 例: 空色
+  scene.background = new THREE.Color(0x800000); 
 
 
   // 座標軸の設定
@@ -48,32 +48,54 @@ function init() {
     //カメラコントロール
   const orbitControls = new OrbitControls(camera,renderer.domElement);
 
-  //照明
-  const light = new THREE.PointLight(0xf4a460,800);
- light.position.set(0, 10, 0); 
+//照明
+const light = new THREE.PointLight(0xf39800,35); 
+light.position.set(0, 6, 0.2); 
  scene.add(light);
- const ambientLight = new THREE.AmbientLight(0x404040, 1); // 環境光
-scene.add(ambientLight);
 
+ const light2 = new THREE.SpotLight(0xffffff, 1.8, 40, Math.PI / 4, 0.5, 1);
+ light2.position.set(0, 1.5, -7 / 2 + 0.1); // テレビの中心付近に配置
+scene.add(light2);
+
+
+ //動画
+ const video = document.createElement('video');
+ video.src = 'maturi.mp4';  // 動画のソースファイルを指定
+ video.load();
+ video.play();
+ video.muted = true;
+ video.loop = true;  // 動画をループさせる
+
+ // 再読み込みの時静止する場合クリックで再生
+ document.addEventListener('click', () => {
+  video.play();
+});
+ 
+
+ const texture = new THREE.VideoTexture(video);
+ texture.minFilter = THREE.LinearFilter;
+ texture.magFilter = THREE.LinearFilter;
+ texture.format = THREE.RGBFormat;
 
  
 
  // 3. テクスチャの読み込み
 const textureLoader = new THREE.TextureLoader();
-const floorTexture = textureLoader.load('yukagazo.webp');
-const tableTexture = textureLoader.load('mokume.jpg');
-const ballTexture = textureLoader.load('ball.jpg');
+const floorTexture = textureLoader.load('dairiseki.avif');
+const tableTexture = textureLoader.load('tukue.avif');
+const frontTexture = textureLoader.load('audio01.jpg');
 
 
   //表示
   const wallMaterial = new THREE.MeshLambertMaterial({ color:0xffffff }); 
   const floorMaterial = new THREE.MeshPhongMaterial({ map: floorTexture, side: THREE.DoubleSide }); 
   const tvFrameMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 }); // 黒いフレーム
-  const tvScreenMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, emissive: 0x1111ff });
+  const tvScreenMaterial = new THREE.MeshBasicMaterial({ map: texture }); 
+
 
   // 部屋のサイズ設定
 const roomWidth = 7;
-const roomHeight = 5;
+const roomHeight = 4.7;
 const roomDepth = 7;
 
 // 床
@@ -126,13 +148,13 @@ scene.add(rightWall);
 
 // ソファの座面
 const seatGeometry = new THREE.BoxGeometry(2, 0.5, 1);  // 幅4、高さ1、奥行き2
-const seatMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });  // 色：茶色
+const seatMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });  
 const seat = new THREE.Mesh(seatGeometry, seatMaterial);
 seat.position.set(0, 0.25, 0);  // 座面の位置
 
 // ソファの背もたれ
 const backrestGeometry = new THREE.BoxGeometry(2, 0.75, 0.1);  // 幅4、高さ1.5、奥行き0.2
-const backrestMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });  // 背もたれの色
+const backrestMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });  
 const backrest = new THREE.Mesh(backrestGeometry, backrestMaterial);
 backrest.position.set(0, 0.7, 0.55);  // 背もたれの位置
 
@@ -156,20 +178,20 @@ scene.add(armrestRight);
 
 // テレビのフレーム
 const tvFrame = new THREE.Mesh(
-  new THREE.BoxGeometry(2, 1.2, 0.1), // 横2m、縦1.2m、厚さ10cmのフレーム
+  new THREE.BoxGeometry(3, 1.7, 0.1), // 横2m、縦1.2m、厚さ10cmのフレーム
   tvFrameMaterial
 );
 
 // テレビのスクリーン
 const tvScreen = new THREE.Mesh(
-  new THREE.BoxGeometry(1.8, 1, 0.05), // 横1.8m、縦1m、厚さ5cmの画面
+  new THREE.BoxGeometry(2.8, 1.5, 0.05), // 横1.8m、縦1m、厚さ5cmの画面
   tvScreenMaterial
 );
-tvScreen.position.z = 0.05; // フレームの中に配置
+tvScreen.position.z = 0.029; // フレームの中に配置
 tvFrame.add(tvScreen);
 
 // テレビを壁に取り付ける
-tvFrame.position.set(0, 1.5, -roomDepth / 2 + 0.05); // 壁の中央付近に配置
+tvFrame.position.set(0, 2.0, -roomDepth / 2 + 0.05); // 壁の中央付近に配置
 scene.add(tvFrame);
 
 
@@ -184,10 +206,10 @@ tableTop.position.set(0,  0.2, -1.7); // ソファとテレビの間に配置（
 // テーブルをシーンに追加
 scene.add(tableTop);
 
-// ボールの作成 (半径 0.2)
-const smallBallRadius = 0.2;
-const smallBallGeometry = new THREE.SphereGeometry(smallBallRadius, 32, 32);
-const smallBallMaterial = new THREE.MeshLambertMaterial({  map: ballTexture });  // 色：緑
+// ボールの作成 
+
+const smallBallGeometry = new THREE.SphereGeometry(0.2, 24, 24);
+const smallBallMaterial = new THREE.MeshLambertMaterial({  color:0xff1111  });  
 const smallBall = new THREE.Mesh(smallBallGeometry, smallBallMaterial);
 
 // ソファの後ろに配置 (座標はソファの位置を基準に変更)
@@ -202,7 +224,7 @@ const shelfHeight = 0.2;  // 棚の高さ (薄い)
 const shelfDepth = 0.3;  // 棚の奥行き
 
 const shelfGeometry = new THREE.BoxGeometry(shelfWidth, shelfHeight, shelfDepth);
-const shelfMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });  // 色：茶色
+const shelfMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });  
 const shelf = new THREE.Mesh(shelfGeometry, shelfMaterial);
 
 // 棚を右壁に取り付ける位置を設定
@@ -237,6 +259,47 @@ for (let i = 0; i < numBooks; i++) {
   // 本を棚に追加
   scene.add(book);
 }
+
+// オーディオ機材のサイズ
+const audioWidth = 1.3; // 幅
+const audioHeight = 1.7;  // 高さ
+const audioDepth = 0.5; // 奥行き
+
+// オーディオ機材のマテリアル
+const otherMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 }); 
+const frontMaterial = new THREE.MeshLambertMaterial({ map: frontTexture }); 
+
+// 左側のオーディオ機材
+const leftAudio = new THREE.Mesh(
+  new THREE.BoxGeometry(audioWidth, audioHeight, audioDepth),
+  [
+    otherMaterial, // 左面
+    otherMaterial, // 右面
+    otherMaterial, // 上面
+    otherMaterial, // 底面
+    frontMaterial, // 前面
+    otherMaterial, // 背面
+  ]
+);
+leftAudio.position.set(-2.5, audioHeight / 2, -roomDepth / 2.06 + 0.15); // テレビの左脇に配置
+
+// 右側のオーディオ機材
+const rightAudio = new THREE.Mesh(
+  new THREE.BoxGeometry(audioWidth, audioHeight, audioDepth),
+  [
+    otherMaterial, // 左面
+    otherMaterial, // 右面
+    otherMaterial, // 上面
+    otherMaterial, // 底面
+    frontMaterial, // 前面
+    otherMaterial, // 背面
+  ]
+);
+rightAudio.position.set(2.5, audioHeight / 2, -roomDepth / 2.06 + 0.15); // テレビの右脇に配置
+
+// シーンに追加
+scene.add(leftAudio);
+scene.add(rightAudio);
 
 
 
